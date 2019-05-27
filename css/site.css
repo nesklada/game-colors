@@ -1,0 +1,60 @@
+.board {
+    margin: 0 auto;
+    max-width: 240px;
+    display: flex;
+    flex-wrap: wrap;
+    box-shadow: 0 0 0 2px #eee;
+}
+
+.board:empty {
+    box-shadow: none;
+}
+
+.board-item {
+    width: 60px;
+    height: 60px;
+    box-shadow: 0 0 0 1px #eee;
+    position: relative;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.board-item_front,
+.board-item_back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: 0.75s;
+  backface-visibility: hidden;
+  transition-property: transform;
+}
+
+.board-item_front {
+    background: #fff;
+}
+
+.board-item_back {
+    transform: rotateY(180deg);
+}
+
+.board-item.active .board-item_front {
+    transform: rotateY(180deg)
+}
+
+.board-item.active .board-item_back {
+    transform: rotateY(360deg)
+}
+
+.board-item_front:hover {
+    background: #fafafa;
+}
+
+.board.disabled .board-item {
+    pointer-events: none;
+}
+
+.flex {
+    display: flex;
+}
