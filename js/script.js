@@ -11,16 +11,16 @@ function hasClass(target, className) {
 }
 
 var Board = function(config) {
-    this.numbersOfSearch = 2;
     this.generateS = [];
-    this.sizeBoard= 4;
 
+    this.numbersOfSearch = config.numbersOfSearch;
+    this.sizeBoard= config.sizeBoard;
     this.startControl = config.startControl;
     this.board = config.board;
     this.colors = config.colors;
 };
 
-Board.prototype.generateSecret = function () {
+Board.prototype.generateSecret = function() {
     this.generateS = [];
 
     for (let i = 0; i < this.sizeBoard; i++) {
@@ -31,10 +31,11 @@ Board.prototype.generateSecret = function () {
     for (let i = 0; i < this.numbersOfSearch; i++) {
 
         this.colors.forEach(color => {
-            doubleColor.push(color);
+            doubleColor.push(color.toLowerCase());
         });
 
     }
+    console.log(doubleColor);
 
     let index = 0;
     let colorItems = doubleColor.length;
@@ -44,6 +45,7 @@ Board.prototype.generateSecret = function () {
 
         if (index === this.generateS.length) {
             index = 0;
+
         }
 
         this.generateS[index].push(doubleColor[randomColorKey]);
@@ -55,7 +57,7 @@ Board.prototype.generateSecret = function () {
     console.log(this.generateS);
 };
 
-Board.prototype.createBoard = function (cb) {
+Board.prototype.createBoard = function(cb) {
     const boxes = this.sizeBoard;
 
     this.board.innerHTML = "";
@@ -70,17 +72,17 @@ Board.prototype.createBoard = function (cb) {
         }
     }
 
-    let widthBoard = this.board.offsetWidth + 'px',
-        heightBoard = this.board.offsetHeight + 'px';
+    let widthItem = this.board.querySelectorAll('.board-item')[0].offsetWidth,
+        heightItem = this.board.querySelectorAll('.board-item')[0].offsetHeight;
 
-    this.board.setAttribute('style', `width: ${widthBoard}; height: ${heightBoard}`);
+    this.board.setAttribute('style', `width: ${widthItem * this.sizeBoard}px; height: ${heightItem * this.sizeBoard}px`);
 
     if (cb) {
         cb();
     }
 };
 
-Board.prototype.showCell = function (cb) {
+Board.prototype.showCell = function(cb) {
     let items = document.getElementsByClassName('board-item');
     let counter = 0;
     let bufferColor = "";
@@ -148,17 +150,21 @@ Board.prototype.showCell = function (cb) {
     }
 };
 
-Board.prototype.win = function () {
+Board.prototype.win = function() {
     alert('Победа!! Время: ' + timer.currentTime);
     timer.clear();
 
     this.startControl.innerHTML = "Уря :)";
 };
 
-Board.prototype.init = function () {
+Board.prototype.init = function() {
     this.generateSecret();
     this.createBoard(() => this.showCell(this.win));
 };
+
+Board.prototype.destroy = function() {
+    this.board.innerHTML = "";
+}
 
 function Timer() {
     let timerId;
@@ -236,32 +242,30 @@ function Timer() {
             this.start(outer);
         }, 1000);
     };
-}
-
+};
 
 const config = {
     startControl: document.getElementById('js_start-game'),
     board: document.getElementById('js_board'),
-    colors: ['green', 'blue', 'red', 'yellow', 'black', 'orange', 'pink', 'violet']
+    colors: ['green', 'blue', 'red', 'yellow', 'Black', 'orange', 'pink', 'violet'], // sizeBoard * numbersOfSearch = Number of colors
+    sizeBoard: 4,
+    numbersOfSearch: 2
 };
-let timer;
-function runGame() {
-    var board = new Board(config);
-    timer = new Timer();
-    board.init();
-}
 
+let timer = new Timer();
+let board = new Board(config);
 let toggleBoard = 0;
+
 config.startControl.addEventListener('click', function(){
     toggleBoard++;
 
     if (toggleBoard > 1) {
         toggleBoard = 0;
         this.innerHTML = "Старт";
-        config.board.innerHTML = "";
+        board.destroy();
     } else {
         this.innerHTML = "Стоп";
-        runGame();
+        board.init();
     }
     
     timer.toggler(document.getElementById('js_timer'));
